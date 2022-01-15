@@ -1,0 +1,17 @@
+/**
+ * © 2022-2026 Ashraf Morningstar
+ * https://github.com/AshrafMorningstar
+ * 
+ * This file is part of LinkedIn Viral Scheduler.
+ * Created for educational and skill development purposes.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-50;
+  }
+}

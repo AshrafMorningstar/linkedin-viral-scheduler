@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  accounts  LinkedInAccount[]
+  mediaItems MediaItem[]
+  drafts    PostDraft[]
+  schedules SchedulePlan[]
+}
+
+model LinkedInAccount {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  linkedinUrn   String
+  accessToken   String
+  refreshToken  String?
+  tokenExpiresAt DateTime?
+  createdAt     DateTime @default(now())
+  
+  schedules     SchedulePlan[]
+}
+
+model MediaItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  path      String
+  mimeType  String
+  mediaType String   // 'IMAGE' | 'VIDEO' | 'DOCUMENT'
+  status    String   // 'NEW' | 'PROCESSED' | 'SCHEDULED' | 'POSTED' | 'FAILED'
+  meta      String?  // JSON string
+  createdAt DateTime @default(now())
+
+  drafts    PostDraft[]
+}
+
+model PostDraft {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  mediaItemId  String?
+  mediaItem    MediaItem? @relation(fields: [mediaItemId], references: [id])
+  hook         String?
+  body         String?
+  hashtags     String?
+  altText      String?
+  score        Float?
+  createdAt    DateTime @default(now())
+
+  schedules    SchedulePlan[]
+}
+
+model SchedulePlan {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  postDraftId       String
+  postDraft         PostDraft @relation(fields: [postDraftId], references: [id])
+  linkedinAccountId String?
+  linkedinAccount   LinkedInAccount? @relation(fields: [linkedinAccountId], references: [id])
+  scheduledAt       DateTime
+  status            String   // 'PENDING' | 'QUEUED' | 'SCHEDULED' | 'FAILED' | 'POSTED'
+  linkedinPostUrn   String?
+  createdAt         DateTime @default(now())
+}
